@@ -1,0 +1,13 @@
+#!/bin/sh
+# Liveness probe for the php-fpm container: ask the pool to answer its own ping.
+set -e
+
+export SCRIPT_NAME=/fpm-ping
+export SCRIPT_FILENAME=/fpm-ping
+export REQUEST_METHOD=GET
+
+if cgi-fcgi -bind -connect /var/run/php/php-fpm.sock 2>/dev/null | grep -q "pong"; then
+    exit 0
+fi
+
+exit 1

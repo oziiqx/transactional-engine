@@ -1,0 +1,10 @@
+framework:
+    lock:
+        # Single default store (Redis). Callers namespace their own resource keys,
+        # e.g. "wallet.reconcile.<id>" or "payment.capture.<id>".
+        default: '%env(LOCK_DSN)%'
+
+when@test:
+    framework:
+        lock:
+            default: 'in-memory'

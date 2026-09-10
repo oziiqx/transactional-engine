@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="1"
+    resolveFromConfigFile="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+    findUnusedPsalmSuppress="true"
+    ensureArrayStringOffsetsExist="true"
+    ensureArrayIntOffsetsExist="true"
+    reportMixedIssues="true"
+    sealAllMethods="true"
+    memoizeMethodCallResults="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="src"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+            <file name="src/Kernel.php"/>
+        </ignoreFiles>
+    </projectFiles>
+
+    <plugins>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
+            <containerXml>var/cache/dev/App_KernelDevDebugContainer.xml</containerXml>
+        </pluginClass>
+    </plugins>
+
+    <issueHandlers>
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <directory name="src/*/Infrastructure/Doctrine"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <directory name="src"/>
+            </errorLevel>
+        </UnusedClass>
+    </issueHandlers>
+</psalm>

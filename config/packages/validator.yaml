@@ -1,0 +1,16 @@
+framework:
+    validation:
+        email_validation_mode: html5
+        # Domain invariants belong in the aggregate; the validator only guards the
+        # transport boundary (command/query shape), declared via attributes.
+        auto_mapping: []
+
+when@prod:
+    framework:
+        validation:
+            not_compromised_password: false
+
+when@test:
+    framework:
+        validation:
+            not_compromised_password: false

@@ -161,4 +161,4 @@ that is rolled back afterwards (`dama/doctrine-test-bundle`).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — it's a portfolio project. Use any of it.

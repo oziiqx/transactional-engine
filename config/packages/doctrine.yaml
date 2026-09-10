@@ -1,0 +1,91 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        server_version: '16'
+        charset: utf8
+        use_savepoints: true
+        profiling_collect_backtrace: '%kernel.debug%'
+
+        # Custom column types keep value objects out of the ORM's default mappings.
+        # Context-specific identifier types (wallet_id, payment_id, ...) are
+        # registered alongside their aggregate in each context's own config import.
+        types:
+            currency: App\Shared\Infrastructure\Doctrine\Type\CurrencyType
+            money_amount: App\Shared\Infrastructure\Doctrine\Type\MoneyAmountType
+            idempotency_key: App\Shared\Infrastructure\Doctrine\Type\IdempotencyKeyType
+
+        mapping_types:
+            citext: string
+
+        default_table_options:
+            charset: utf8
+
+    orm:
+        auto_mapping: false
+        enable_lazy_ghost_objects: true
+        report_fields_where_declared: true
+        validate_xml_mapping: true
+        auto_generate_proxy_classes: '%kernel.debug%'
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        identity_generation_preferences:
+            Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
+        controller_resolver:
+            auto_mapping: false
+
+        # XML mappings live beside each context's adapters; the domain stays clean.
+        mappings:
+            Wallet:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Wallet/Infrastructure/Doctrine/Mapping'
+                prefix: App\Wallet\Domain
+                alias: Wallet
+            Payment:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Payment/Infrastructure/Doctrine/Mapping'
+                prefix: App\Payment\Domain
+                alias: Payment
+            Pricing:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Pricing/Infrastructure/Doctrine/Mapping'
+                prefix: App\Pricing\Domain
+                alias: Pricing
+            Notification:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Notification/Infrastructure/Doctrine/Mapping'
+                prefix: App\Notification\Domain
+                alias: Notification
+            Shared:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Shared/Infrastructure/Doctrine/Mapping'
+                prefix: App\Shared\Infrastructure\Persistence
+                alias: Shared
+
+when@prod:
+    doctrine:
+        orm:
+            auto_generate_proxy_classes: false
+            proxy_dir: '%kernel.build_dir%/doctrine/orm/Proxies'
+            query_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
+            result_cache_driver:
+                type: pool
+                pool: doctrine.result_cache_pool
+
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.app
+                doctrine.system_cache_pool:
+                    adapter: cache.system
+
+when@test:
+    doctrine:
+        dbal:
+            dbname_suffix: '_test%env(default::TEST_TOKEN)%'

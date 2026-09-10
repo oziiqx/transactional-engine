@@ -1,0 +1,88 @@
+framework:
+    messenger:
+        default_bus: command.bus
+
+        buses:
+            # ── Write side ────────────────────────────────────────────────
+            # Exactly one handler per command. The chain: validate the message,
+            # open a DB transaction, run the handler, commit, then relay the
+            # domain events recorded by the aggregates that were touched.
+            command.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: false
+                middleware:
+                    - validation
+                    # Relay is listed *before* doctrine_transaction, so its
+                    # post-handling code runs after COMMIT and publishes only
+                    # committed events.
+                    - App\Shared\Infrastructure\Bus\Messenger\Middleware\RelayRecordedDomainEventsMiddleware
+                    - doctrine_transaction
+
+            # ── Read side ─────────────────────────────────────────────────
+            # Exactly one handler per query; handlers return a read model.
+            query.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: false
+                middleware:
+                    - validation
+
+            # ── Domain events ────────────────────────────────────────────
+            # Zero-to-many handlers. Sync subscribers update read models in the
+            # same request; async ones are routed to a transport below.
+            event.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: true
+
+        failure_transport: failed
+
+        transports:
+            async_domain_events:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: domain_events
+                        type: topic
+                    queues:
+                        domain_events: ~
+                retry_strategy:
+                    max_retries: 5
+                    delay: 1000
+                    multiplier: 3
+                    max_delay: 60000
+
+            async_webhooks:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: webhooks
+                        type: direct
+                    queues:
+                        webhooks: ~
+                retry_strategy:
+                    # Endpoint owners get 8 attempts over ~36h; the delivery
+                    # aggregate tracks its own attempt budget on top of this.
+                    max_retries: 8
+                    delay: 5000
+                    multiplier: 4
+                    max_delay: 21600000
+
+            failed:
+                dsn: 'doctrine://default?queue_name=failed'
+
+        routing:
+            # Domain events are relayed on the in-process event bus. Context
+            # subscribers translate the ones that matter into explicit integration
+            # messages, and only those cross the wire.
+            App\Shared\Application\Event\IntegrationMessage: async_domain_events
+            App\Notification\Application\DispatchWebhook\DispatchWebhookMessage: async_webhooks
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                async_domain_events: 'in-memory://'
+                async_webhooks: 'in-memory://'
+                failed: 'in-memory://'

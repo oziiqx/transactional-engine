@@ -1,0 +1,25 @@
+framework:
+    rate_limiter:
+        # Applied per API key by ApiRateLimitSubscriber on the request boundary.
+        api_default:
+            policy: 'sliding_window'
+            limit: 120
+            interval: '1 minute'
+
+        # Stricter budget for state-changing payment endpoints.
+        payment_write:
+            policy: 'token_bucket'
+            limit: 20
+            rate: { interval: '1 second', amount: 2 }
+
+when@test:
+    framework:
+        rate_limiter:
+            api_default:
+                policy: 'sliding_window'
+                limit: 10000
+                interval: '1 minute'
+            payment_write:
+                policy: 'sliding_window'
+                limit: 10000
+                interval: '1 minute'

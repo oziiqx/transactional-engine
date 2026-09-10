@@ -1,0 +1,28 @@
+framework:
+    cache:
+        prefix_seed: transactional_engine/%kernel.environment%
+
+        app: cache.adapter.redis
+        system: cache.adapter.system
+
+        default_redis_provider: '%env(REDIS_URL)%'
+
+        pools:
+            # Read-model fragments that can be rebuilt from events at any time.
+            cache.read_model:
+                adapter: cache.adapter.redis
+                default_lifetime: 300
+            # Idempotency fingerprints — short TTL, must survive a request.
+            cache.idempotency:
+                adapter: cache.adapter.redis
+                default_lifetime: 86400
+
+when@test:
+    framework:
+        cache:
+            app: cache.adapter.array
+            pools:
+                cache.read_model:
+                    adapter: cache.adapter.array
+                cache.idempotency:
+                    adapter: cache.adapter.array

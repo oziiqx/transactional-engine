@@ -1,0 +1,68 @@
+# Dependency-injection wiring. This is the one place the framework is allowed to
+# know about application and infrastructure classes; the Domain layer is never
+# registered as a service and never autowired.
+
+parameters:
+    app.webhook.signing_key: '%env(WEBHOOK_SIGNING_KEY)%'
+    app.api.request_signing_key: '%env(API_REQUEST_SIGNING_KEY)%'
+    app.webhook.max_attempts: 8
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $webhookSigningKey: '%app.webhook.signing_key%'
+            string $apiRequestSigningKey: '%app.api.request_signing_key%'
+            int $webhookMaxAttempts: '%app.webhook.max_attempts%'
+
+    # Application + Infrastructure of every bounded context become services.
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/**/Domain/'
+            - '../src/**/DoctrineMigrations/'
+            - '../src/**/ApiPlatform/Resource/'
+            - '../src/**/ReadModel/'
+            - '../src/**/Dto/'
+            - '../src/**/Exception/'
+            - '../src/Shared/Application/Idempotency/'
+            - '../src/Shared/Application/Lock/'
+            # CQRS messages and other immutable DTOs are data, never services.
+            - '../src/**/*Command.php'
+            - '../src/**/*Query.php'
+            - '../src/**/*Event.php'
+            - '../src/**/*Result.php'
+            - '../src/**/*Response.php'
+            - '../src/**/*Message.php'
+            - '../src/**/*View.php'
+
+    # Marker interfaces route handlers onto the right Messenger bus. The handlers
+    # themselves stay plain objects with no attribute and no base class.
+    _instanceof:
+        App\Shared\Application\Command\CommandHandler:
+            tags:
+                - { name: messenger.message_handler, bus: command.bus }
+        App\Shared\Application\Query\QueryHandler:
+            tags:
+                - { name: messenger.message_handler, bus: query.bus }
+        App\Shared\Application\Event\DomainEventListener:
+            tags:
+                - { name: messenger.message_handler, bus: event.bus }
+
+    # Hexagonal wiring: application ports -> infrastructure adapters.
+    App\Shared\Domain\Clock\Clock:
+        alias: App\Shared\Infrastructure\Clock\SystemClock
+    App\Shared\Application\Command\CommandBus:
+        alias: App\Shared\Infrastructure\Bus\Messenger\MessengerCommandBus
+    App\Shared\Application\Query\QueryBus:
+        alias: App\Shared\Infrastructure\Bus\Messenger\MessengerQueryBus
+    App\Shared\Application\Event\EventBus:
+        alias: App\Shared\Infrastructure\Bus\Messenger\MessengerEventBus
+    App\Shared\Application\Event\IntegrationMessageBus:
+        alias: App\Shared\Infrastructure\Bus\Messenger\MessengerIntegrationMessageBus
+    App\Shared\Application\Idempotency\IdempotencyStore:
+        alias: App\Shared\Infrastructure\Idempotency\CacheBackedIdempotencyStore
+    App\Shared\Application\Lock\LockFactory:
+        alias: App\Shared\Infrastructure\Lock\SymfonyLockFactory

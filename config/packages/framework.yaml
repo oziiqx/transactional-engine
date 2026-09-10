@@ -1,0 +1,29 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    http_method_override: false
+    handle_all_throwables: true
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host', 'x-forwarded-port']
+
+    php_errors:
+        log: true
+
+    property_info:
+        with_constructor_extractor: true
+
+    validation:
+        email_validation_mode: html5
+        auto_mapping: []
+
+    serializer:
+        default_context:
+            skip_null_values: true
+            preserve_empty_objects: true
+
+    session: false
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

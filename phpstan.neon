@@ -1,0 +1,41 @@
+parameters:
+    level: 10
+    phpVersion: 80300
+    paths:
+        - src
+        - tests
+    tmpDir: var/cache/phpstan
+
+    treatPhpDocTypesAsCertain: true
+    checkBenevolentUnionTypes: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    reportAnyTypeWideningInVarTag: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
+    reportPossiblyNonexistentConstantArrayOffset: true
+
+    exceptions:
+        implicitThrows: false
+        checkedExceptionClasses:
+            - App\Shared\Domain\Exception\DomainException
+        check:
+            missingCheckedExceptionInThrows: false
+            tooWideThrowType: true
+
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+        consoleApplicationLoader: tests/Support/console-application.php
+
+    doctrine:
+        objectManagerLoader: tests/Support/object-manager.php
+        ormRepositoryClass: Doctrine\ORM\EntityRepository
+
+    ignoreErrors:
+        # API Platform's state contracts type $data as mixed; every processor and
+        # provider narrows it with an assertion on the first statement.
+        -
+            identifier: missingType.parameter
+            path: src/*/Infrastructure/ApiPlatform/State/*
+
+    excludePaths:
+        analyse:
+            - src/Kernel.php

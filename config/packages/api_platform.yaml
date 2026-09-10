@@ -1,0 +1,71 @@
+api_platform:
+    title: 'Transactional Engine API'
+    description: >
+        Multi-currency wallets, an idempotent payment processor, a dynamic discount
+        engine and a signed webhook dispatcher. Built with DDD, Hexagonal Architecture
+        and CQRS.
+    version: '1.0.0'
+
+    # Resource metadata is declared with PHP attributes on DTOs under each context.
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src/Wallet/Infrastructure/ApiPlatform/Resource'
+            - '%kernel.project_dir%/src/Payment/Infrastructure/ApiPlatform/Resource'
+            - '%kernel.project_dir%/src/Pricing/Infrastructure/ApiPlatform/Resource'
+            - '%kernel.project_dir%/src/Notification/Infrastructure/ApiPlatform/Resource'
+
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+    docs_formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+        html: ['text/html']
+        jsonopenapi: ['application/vnd.openapi+json']
+
+    # Every error surfaces as RFC 7807 Problem Details.
+    error_formats:
+        jsonproblem: ['application/problem+json']
+        jsonld: ['application/ld+json']
+
+    exception_to_status:
+        App\Shared\Domain\Exception\InvariantViolation: 422
+        App\Shared\Domain\Exception\ConflictingState: 409
+        App\Shared\Domain\Exception\NotFound: 404
+        Symfony\Component\Messenger\Exception\ValidationFailedException: 422
+
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+        normalization_context:
+            skip_null_values: true
+        pagination_client_items_per_page: true
+        pagination_maximum_items_per_page: 100
+
+    graphql:
+        enabled: true
+        graphql_playground: '%kernel.debug%'
+        nesting_separator: __
+
+    openapi:
+        contact:
+            name: 'API Support'
+        license:
+            name: 'MIT'
+        swagger_ui_extra_configuration:
+            defaultModelsExpandDepth: 2
+            docExpansion: 'list'
+
+    swagger:
+        versions: [3]
+        api_keys:
+            apiKey:
+                name: 'X-Api-Key'
+                type: 'header'
+            signature:
+                name: 'X-Signature'
+                type: 'header'
+
+    keep_legacy_inflector: false
+    use_symfony_listeners: true
