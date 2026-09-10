@@ -1,0 +1,21 @@
+# Normalise line endings — LF everywhere, regardless of the checkout platform.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+
+# Keep release archives (composer create-project / "Download ZIP") lean:
+# development-only files are not part of the distributable package.
+/.github            export-ignore
+/.editorconfig      export-ignore
+/.dockerignore      export-ignore
+/.gitattributes     export-ignore
+/.gitignore         export-ignore
+/tests              export-ignore
+/docker             export-ignore
+/compose.yaml       export-ignore
+/Makefile           export-ignore
+/phpstan.neon       export-ignore
+/ecs.php            export-ignore
+/rector.php         export-ignore
+/phpunit.xml.dist   export-ignore
+/SECURITY.md        export-ignore

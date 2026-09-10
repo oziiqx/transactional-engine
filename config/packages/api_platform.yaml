@@ -45,8 +45,9 @@ api_platform:
 
     graphql:
         enabled: true
-        graphql_playground: '%kernel.debug%'
         nesting_separator: __
+        graphiql:
+            enabled: '%kernel.debug%'
 
     openapi:
         contact:
@@ -63,9 +64,5 @@ api_platform:
             apiKey:
                 name: 'X-Api-Key'
                 type: 'header'
-            signature:
-                name: 'X-Signature'
-                type: 'header'
 
-    keep_legacy_inflector: false
     use_symfony_listeners: true

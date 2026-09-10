@@ -16,6 +16,8 @@ final readonly class WalletFrozen extends WalletDomainEvent
 
     public function payload(): array
     {
-        return ['walletId' => $this->walletId];
+        return [
+            'walletId' => $this->walletId,
+        ];
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Support;
 
 use App\Shared\Domain\Clock\Clock;
+use DateInterval;
 use DateTimeImmutable;
 
 /**
@@ -27,7 +28,7 @@ final class FrozenClock implements Clock
 
     public function advanceBy(string $interval): void
     {
-        $this->now = $this->now->add(new \DateInterval($interval));
+        $this->now = $this->now->add(new DateInterval($interval));
     }
 
     public function setTo(string $now): void

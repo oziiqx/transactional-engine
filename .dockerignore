@@ -1,20 +1,27 @@
 .git
 .github
+.gitattributes
 .idea
 .vscode
-var/
-vendor/
-node_modules/
+.claude
+
+# Dev-only — not needed inside the runtime image
 tests/
 *.md
 !README.md
+Makefile
+phpstan.neon
+ecs.php
+rector.php
+phpunit.xml.dist
+
+# Local / generated
 .env.local
 .env.*.local
+/var/
+/vendor/
 .phpunit.cache/
 .phpunit.result.cache
-var/coverage/
-docker-compose.override.yml
-compose.override.yaml
 .rector.cache
 .php-cs-fixer.cache
-psalm.baseline.xml
+compose.override.yaml

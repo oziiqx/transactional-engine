@@ -33,6 +33,11 @@ final readonly class Money implements Stringable, JsonSerializable
     ) {
     }
 
+    public function __toString(): string
+    {
+        return $this->toDecimalString() . ' ' . $this->currency->value;
+    }
+
     /**
      * @throws InvariantViolation when the amount is outside the safe range
      */
@@ -70,12 +75,16 @@ final readonly class Money implements Stringable, JsonSerializable
 
         $digits = $currency->fractionDigits();
         $frac = $m['frac'] ?? '';
+        $negative = $m['sign'] === '-';
 
         if (\strlen($frac) > $digits) {
             throw InvariantViolation::of(
                 'money.too_precise',
                 \sprintf('%s amounts allow at most %d fraction digit(s).', $currency->value, $digits),
-                ['currency' => $currency->value, 'maxFractionDigits' => $digits],
+                [
+                    'currency' => $currency->value,
+                    'maxFractionDigits' => $digits,
+                ],
             );
         }
 
@@ -84,7 +93,7 @@ final readonly class Money implements Stringable, JsonSerializable
             $minor += (int) str_pad($frac, $digits, '0', \STR_PAD_RIGHT);
         }
 
-        return self::of(($m['sign'] ?? '') === '-' ? -$minor : $minor, $currency);
+        return self::of($negative ? -$minor : $minor, $currency);
     }
 
     /**
@@ -154,23 +163,35 @@ final readonly class Money implements Stringable, JsonSerializable
 
         $shares = [];
         $remainder = $this->minorAmount;
-        foreach ($ratios as $ratio) {
+        foreach ($ratios as $index => $ratio) {
             $share = \intdiv($this->guard($this->minorAmount * $ratio, 'allocate'), $total);
-            $shares[] = $share;
+            $shares[$index] = $share;
             $remainder -= $share;
         }
 
+        // |remainder| is strictly smaller than the number of non-zero buckets, so
+        // a single ordered pass handing out one minor unit each is enough.
         $step = $remainder <=> 0;
-        $count = \count($ratios);
-        for ($i = 0; $remainder !== 0; ++$i) {
-            $slot = $i % $count;
-            if ($ratios[$slot] !== 0) {
-                $shares[$slot] += $step;
-                $remainder -= $step;
+        foreach ($ratios as $index => $ratio) {
+            if ($remainder === 0) {
+                break;
             }
+
+            if ($ratio === 0) {
+                continue;
+            }
+
+            \assert(\array_key_exists($index, $shares));
+            $shares[$index] += $step;
+            $remainder -= $step;
         }
 
-        return array_map(fn (int $minor): self => new self($minor, $this->currency), $shares);
+        $allocated = [];
+        foreach ($shares as $minor) {
+            $allocated[] = new self($minor, $this->currency);
+        }
+
+        return $allocated;
     }
 
     /**
@@ -254,7 +275,7 @@ final readonly class Money implements Stringable, JsonSerializable
     }
 
     /**
-     * @return numeric-string
+     * The amount as a plain decimal string, e.g. "-12.34" or "500" (JPY).
      */
     public function toDecimalString(): string
     {
@@ -263,23 +284,16 @@ final readonly class Money implements Stringable, JsonSerializable
         $abs = \abs($this->minorAmount);
 
         if ($digits === 0) {
-            /** @var numeric-string */
-            return $sign . (string) $abs;
+            return $sign . $abs;
         }
 
         $factor = $this->currency->subunitFactor();
 
-        /** @var numeric-string */
         return \sprintf('%s%d.%0' . $digits . 'd', $sign, \intdiv($abs, $factor), $abs % $factor);
     }
 
-    public function __toString(): string
-    {
-        return $this->toDecimalString() . ' ' . $this->currency->value;
-    }
-
     /**
-     * @return array{amount: numeric-string, currency: non-empty-string, minorUnits: int}
+     * @return array{amount: string, currency: non-empty-string, minorUnits: int}
      */
     public function jsonSerialize(): array
     {

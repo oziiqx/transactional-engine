@@ -35,6 +35,9 @@ final class CurrencyMismatch extends DomainException
 
     public function context(): array
     {
-        return ['left' => $this->left->value, 'right' => $this->right->value];
+        return [
+            'left' => $this->left->value,
+            'right' => $this->right->value,
+        ];
     }
 }

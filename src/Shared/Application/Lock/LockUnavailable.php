@@ -12,9 +12,6 @@ use App\Shared\Domain\Exception\DomainException;
  */
 final class LockUnavailable extends DomainException
 {
-    /**
-     * @param non-empty-string $resource
-     */
     public static function forResource(string $resource): self
     {
         return new self(\sprintf('Resource "%s" is currently locked by another operation.', $resource));

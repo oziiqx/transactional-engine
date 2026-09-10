@@ -20,7 +20,9 @@ final class IdempotencyKeyType extends Type
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getStringTypeDeclarationSQL(['length' => IdempotencyKey::MAX_LENGTH]);
+        return $platform->getStringTypeDeclarationSQL([
+            'length' => IdempotencyKey::MAX_LENGTH,
+        ]);
     }
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?IdempotencyKey
@@ -29,7 +31,7 @@ final class IdempotencyKeyType extends Type
             return $value;
         }
 
-        if (!\is_string($value)) {
+        if (! \is_string($value)) {
             throw ValueNotConvertible::new(\get_debug_type($value), IdempotencyKey::class);
         }
 

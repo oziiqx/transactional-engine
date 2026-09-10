@@ -21,8 +21,9 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(event: Events::onFlush)]
 final readonly class CollectDomainEventsSubscriber
 {
-    public function __construct(private DomainEventBuffer $buffer)
-    {
+    public function __construct(
+        private DomainEventBuffer $buffer
+    ) {
     }
 
     public function onFlush(OnFlushEventArgs $args): void

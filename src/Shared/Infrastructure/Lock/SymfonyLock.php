@@ -10,9 +10,6 @@ use Symfony\Component\Lock\LockInterface;
 
 final readonly class SymfonyLock implements Lock
 {
-    /**
-     * @param non-empty-string $resource
-     */
     public function __construct(
         private LockInterface $lock,
         private string $resource,
@@ -21,7 +18,7 @@ final readonly class SymfonyLock implements Lock
 
     public function acquire(): void
     {
-        if (!$this->lock->acquire()) {
+        if (! $this->lock->acquire()) {
             throw LockUnavailable::forResource($this->resource);
         }
     }

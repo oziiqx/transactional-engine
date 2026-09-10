@@ -12,12 +12,7 @@ use DateTimeImmutable;
 final readonly class WalletDebited extends WalletDomainEvent
 {
     /**
-     * @param non-empty-string      $walletId
-     * @param non-empty-string      $ledgerEntryId
      * @param positive-int          $sequence
-     * @param non-empty-string      $currency
-     * @param non-empty-string      $reason
-     * @param non-empty-string|null $reference
      */
     public function __construct(
         string $walletId,

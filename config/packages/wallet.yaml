@@ -1,0 +1,9 @@
+# Wallet context — infrastructure configuration. Kept next to the framework
+# config but scoped to one bounded context.
+
+doctrine:
+    dbal:
+        types:
+            wallet_id: App\Wallet\Infrastructure\Doctrine\Type\WalletIdType
+            wallet_holder_id: App\Wallet\Infrastructure\Doctrine\Type\WalletHolderIdType
+            ledger_entry_id: App\Wallet\Infrastructure\Doctrine\Type\LedgerEntryIdType

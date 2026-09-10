@@ -25,6 +25,7 @@ use Symfony\Contracts\Service\ResetInterface;
 final class CacheBackedIdempotencyStore implements IdempotencyStore, ResetInterface
 {
     private const int RESERVATION_TTL = 120;
+
     private const int RESPONSE_TTL = 86_400;
 
     /**
@@ -47,7 +48,7 @@ final class CacheBackedIdempotencyStore implements IdempotencyStore, ResetInterf
             /** @var array{fingerprint: string, response?: array{statusCode: int, body: string, headers: array<string, string>}} $record */
             $record = $item->get();
 
-            if (!\hash_equals($record['fingerprint'], $requestFingerprint)) {
+            if (! \hash_equals($record['fingerprint'], $requestFingerprint)) {
                 return OpenResult::fingerprintMismatch();
             }
 
@@ -60,13 +61,15 @@ final class CacheBackedIdempotencyStore implements IdempotencyStore, ResetInterf
 
         $lock = $this->lockFactory->createLock($cacheKey, self::RESERVATION_TTL);
 
-        if (!$lock->acquire()) {
+        if (! $lock->acquire()) {
             return OpenResult::inFlight();
         }
 
         $this->heldLocks[$cacheKey] = $lock;
 
-        $item->set(['fingerprint' => $requestFingerprint])
+        $item->set([
+            'fingerprint' => $requestFingerprint,
+        ])
             ->expiresAfter(self::RESERVATION_TTL);
         $this->cacheIdempotency->save($item);
 
@@ -79,7 +82,9 @@ final class CacheBackedIdempotencyStore implements IdempotencyStore, ResetInterf
         $item = $this->cacheIdempotency->getItem($cacheKey);
 
         /** @var array{fingerprint: string} $record */
-        $record = $item->isHit() ? $item->get() : ['fingerprint' => ''];
+        $record = $item->isHit() ? $item->get() : [
+            'fingerprint' => '',
+        ];
         $record['response'] = $response->toArray();
 
         $item->set($record)->expiresAfter(self::RESPONSE_TTL);
@@ -103,8 +108,6 @@ final class CacheBackedIdempotencyStore implements IdempotencyStore, ResetInterf
     }
 
     /**
-     * @param non-empty-string $operation
-     *
      * @return non-empty-string
      */
     private function cacheKey(IdempotencyKey $key, string $operation): string
@@ -112,12 +115,11 @@ final class CacheBackedIdempotencyStore implements IdempotencyStore, ResetInterf
         return 'idem.' . \hash('xxh128', $operation . "\0" . $key->value);
     }
 
-    /**
-     * @param non-empty-string $cacheKey
-     */
     private function release(string $cacheKey): void
     {
-        $this->heldLocks[$cacheKey]?->release();
-        unset($this->heldLocks[$cacheKey]);
+        if (isset($this->heldLocks[$cacheKey])) {
+            $this->heldLocks[$cacheKey]->release();
+            unset($this->heldLocks[$cacheKey]);
+        }
     }
 }

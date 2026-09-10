@@ -23,14 +23,20 @@ abstract readonly class EntityId implements Stringable
     /**
      * @throws InvariantViolation when the value is not a well-formed UUID
      */
-    final public function __construct(public string $value)
-    {
-        if (!Uuid::isValid($value)) {
+    final public function __construct(
+        public string $value
+    ) {
+        if (! Uuid::isValid($value)) {
             throw InvariantViolation::of(
                 'identifier.malformed',
                 \sprintf('"%s" is not a valid %s.', $value, static::label()),
             );
         }
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 
     public static function generate(): static
@@ -49,11 +55,6 @@ abstract readonly class EntityId implements Stringable
     public function equals(self $other): bool
     {
         return $other::class === static::class && $other->value === $this->value;
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
     }
 
     /**

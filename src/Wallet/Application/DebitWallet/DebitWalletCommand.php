@@ -15,14 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final readonly class DebitWalletCommand implements Command
 {
-    /**
-     * @param non-empty-string      $walletId
-     * @param numeric-string        $amount
-     * @param non-empty-string      $currency
-     * @param non-empty-string      $reason
-     * @param non-empty-string|null $reference
-     * @param non-empty-string|null $idempotencyKey
-     */
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Uuid(strict: true)]

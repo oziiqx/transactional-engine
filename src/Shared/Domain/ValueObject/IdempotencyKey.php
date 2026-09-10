@@ -18,10 +18,17 @@ use Stringable;
 final readonly class IdempotencyKey implements Stringable
 {
     public const int MIN_LENGTH = 8;
+
     public const int MAX_LENGTH = 255;
 
-    private function __construct(public string $value)
+    private function __construct(
+        public string $value
+    ) {
+    }
+
+    public function __toString(): string
     {
+        return $this->value;
     }
 
     /**
@@ -57,10 +64,5 @@ final readonly class IdempotencyKey implements Stringable
     public function equals(self $other): bool
     {
         return \hash_equals($this->value, $other->value);
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
     }
 }

@@ -58,12 +58,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Notification/Infrastructure/Doctrine/Mapping'
                 prefix: App\Notification\Domain
                 alias: Notification
-            Shared:
+            SharedValueObjects:
                 type: xml
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Shared/Infrastructure/Doctrine/Mapping'
-                prefix: App\Shared\Infrastructure\Persistence
-                alias: Shared
+                dir: '%kernel.project_dir%/src/Shared/Infrastructure/Doctrine/Mapping/ValueObject'
+                prefix: App\Shared\Domain\ValueObject
+                alias: SharedValueObjects
 
 when@prod:
     doctrine:

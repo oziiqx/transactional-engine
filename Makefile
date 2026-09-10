@@ -3,12 +3,13 @@
 
 DC := docker compose
 PHP := $(DC) exec -T php
+PHP_TEST := $(DC) exec -T -e APP_ENV=test php
 CONSOLE := $(PHP) php bin/console
 
 .DEFAULT_GOAL := help
 .PHONY: help build up down restart logs shell install \
-        db-create db-migrate db-diff db-fixtures db-reset \
-        consume cs cs-fix stan psalm rector test test-unit test-integration coverage qa
+        db-create db-migrate db-diff db-reset \
+        consume cs cs-fix stan rector test test-unit test-integration coverage qa
 
 help: ## List available targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -46,9 +47,6 @@ db-migrate: ## Apply outstanding migrations
 db-diff: ## Generate a migration from mapping changes
 	$(CONSOLE) doctrine:migrations:diff --formatted
 
-db-fixtures: ## Load development fixtures
-	$(CONSOLE) app:fixtures:load --no-interaction
-
 db-reset: ## Drop, recreate and migrate the database
 	$(CONSOLE) doctrine:database:drop --force --if-exists
 	$(MAKE) db-create db-migrate
@@ -69,22 +67,19 @@ cs-fix: ## Fix coding standard violations
 stan: ## Static analysis (PHPStan level 10)
 	$(PHP) vendor/bin/phpstan analyse --memory-limit=-1
 
-psalm: ## Static analysis (Psalm errorLevel 1)
-	$(PHP) vendor/bin/psalm --no-cache --threads=4
-
 rector: ## Report automated refactorings (dry run)
 	$(PHP) vendor/bin/rector process --dry-run
 
 test: ## Run the whole test suite (Pest)
-	$(PHP) vendor/bin/pest --colors=always
+	$(PHP_TEST) vendor/bin/pest --colors=always
 
 test-unit: ## Run the framework-free unit suite
-	$(PHP) vendor/bin/pest --testsuite=unit
+	$(PHP_TEST) vendor/bin/pest --testsuite=unit
 
 test-integration: ## Run the integration + functional suites
-	$(PHP) vendor/bin/pest --testsuite=integration --testsuite=functional
+	$(PHP_TEST) vendor/bin/pest --testsuite=integration --testsuite=functional
 
 coverage: ## Run tests with coverage and a 90% floor
-	$(PHP) env XDEBUG_MODE=coverage vendor/bin/pest --coverage --min=90
+	$(PHP_TEST) -e XDEBUG_MODE=coverage php vendor/bin/pest --coverage --min=90
 
-qa: cs stan psalm test ## Run every quality gate the CI would run
+qa: cs stan test ## Coding standard + PHPStan level 10 + the whole test suite

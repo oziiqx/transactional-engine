@@ -6,7 +6,7 @@ export SCRIPT_NAME=/fpm-ping
 export SCRIPT_FILENAME=/fpm-ping
 export REQUEST_METHOD=GET
 
-if cgi-fcgi -bind -connect /var/run/php/php-fpm.sock 2>/dev/null | grep -q "pong"; then
+if cgi-fcgi -bind -connect 127.0.0.1:9000 2>/dev/null | grep -q "pong"; then
     exit 0
 fi
 

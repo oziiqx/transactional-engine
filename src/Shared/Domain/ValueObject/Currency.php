@@ -37,15 +37,21 @@ enum Currency: string
     }
 
     /**
-     * 10 ** fractionDigits — the number of minor units in one major unit.
+     * The number of minor units in one major unit (100 for two-digit currencies,
+     * 1 for JPY).
+     *
+     * @return positive-int
      */
     public function subunitFactor(): int
     {
-        return 10 ** $this->fractionDigits();
+        return match ($this->fractionDigits()) {
+            0 => 1,
+            default => 100,
+        };
     }
 
     /**
-     * @return numeric-string ISO 4217 numeric code, zero-padded to 3 digits
+     * @return non-empty-string ISO 4217 numeric code, zero-padded to 3 digits
      */
     public function numericCode(): string
     {
@@ -62,8 +68,6 @@ enum Currency: string
     }
 
     /**
-     * @param non-empty-string $code
-     *
      * @throws InvariantViolation when the code is not a supported currency
      */
     public static function fromCode(string $code): self
@@ -72,7 +76,9 @@ enum Currency: string
             ?? throw InvariantViolation::of(
                 'currency.unsupported',
                 \sprintf('"%s" is not a supported settlement currency.', $code),
-                ['supported' => self::codes()],
+                [
+                    'supported' => self::codes(),
+                ],
             );
     }
 

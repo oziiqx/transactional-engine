@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                      https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <!--
+        Money is an embeddable: every place it is used contributes a `<prefix>_minor`
+        BIGINT column and a `<prefix>_currency` CHAR(3) column. The currency is
+        repeated on purpose so each amount is self-describing at the row level.
+    -->
+    <embeddable name="App\Shared\Domain\ValueObject\Money">
+        <field name="minorAmount" type="money_amount" column="minor"/>
+        <field name="currency" type="currency" column="currency" length="3"/>
+    </embeddable>
+
+</doctrine-mapping>

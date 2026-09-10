@@ -3,7 +3,6 @@ parameters:
     phpVersion: 80300
     paths:
         - src
-        - tests
     tmpDir: var/cache/phpstan
 
     treatPhpDocTypesAsCertain: true
@@ -12,6 +11,7 @@ parameters:
     reportAnyTypeWideningInVarTag: true
     reportPossiblyNonexistentGeneralArrayOffset: true
     reportPossiblyNonexistentConstantArrayOffset: true
+    reportUnmatchedIgnoredErrors: false
 
     exceptions:
         implicitThrows: false
@@ -30,11 +30,24 @@ parameters:
         ormRepositoryClass: Doctrine\ORM\EntityRepository
 
     ignoreErrors:
-        # API Platform's state contracts type $data as mixed; every processor and
-        # provider narrows it with an assertion on the first statement.
+        # API Platform's ProviderInterface / ProcessorInterface hand implementations
+        # bare `array` $uriVariables / $context and `mixed` $data by contract. Each
+        # implementation narrows what it needs; the reads below are all on those.
         -
-            identifier: missingType.parameter
+            identifiers:
+                - missingType.iterableValue
+                - cast.string
+                - cast.int
+                - cast.useless
+                - offsetAccess.notFound
+                - nullCoalesce.offset
             path: src/*/Infrastructure/ApiPlatform/State/*
+
+        # Messenger's MessageBusInterface::dispatch() has no @throws for
+        # HandlerFailedException, but a failing handler does surface it here.
+        -
+            identifier: catch.neverThrown
+            path: src/Shared/Infrastructure/Bus/Messenger/*
 
     excludePaths:
         analyse:

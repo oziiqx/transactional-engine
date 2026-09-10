@@ -32,9 +32,15 @@ enum LedgerReason: string
      */
     public static function clientAssignable(): array
     {
-        return array_values(array_map(
-            static fn (self $reason): string => $reason->value,
-            array_filter(self::cases(), static fn (self $reason): bool => !$reason->isSystemGenerated()),
-        ));
+        $values = [];
+        foreach (self::cases() as $reason) {
+            if (! $reason->isSystemGenerated()) {
+                $values[] = $reason->value;
+            }
+        }
+
+        \assert($values !== []);
+
+        return $values;
     }
 }

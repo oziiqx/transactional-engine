@@ -35,7 +35,7 @@ final readonly class ReconcileWalletHandler implements CommandHandler
                 $wallet = $this->wallets->get($walletId);
 
                 $wallet->reconcileAgainst(
-                    $this->source->authoritativeBalanceFor($walletId),
+                    $this->source->authoritativeBalanceFor($walletId, $wallet->currency()),
                     $this->clock->now(),
                 );
 

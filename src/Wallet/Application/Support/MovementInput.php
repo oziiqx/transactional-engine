@@ -19,9 +19,6 @@ use App\Wallet\Domain\Wallet\WalletId;
  */
 final readonly class MovementInput
 {
-    /**
-     * @param non-empty-string|null $reference
-     */
     private function __construct(
         public WalletId $walletId,
         public Money $amount,
@@ -31,12 +28,6 @@ final readonly class MovementInput
     ) {
     }
 
-    /**
-     * @param non-empty-string $walletId
-     * @param numeric-string   $amount
-     * @param non-empty-string $currency
-     * @param non-empty-string $reason
-     */
     public static function fromParts(
         string $walletId,
         string $amount,

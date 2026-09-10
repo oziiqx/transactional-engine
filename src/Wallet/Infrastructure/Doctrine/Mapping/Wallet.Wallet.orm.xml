@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                      https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Wallet\Domain\Wallet\Wallet" table="wallets">
+
+        <indexes>
+            <index name="idx_wallet_status" columns="status"/>
+        </indexes>
+
+        <unique-constraints>
+            <unique-constraint name="uniq_wallet_holder_currency" columns="holder_id,currency"/>
+        </unique-constraints>
+
+        <id name="id" type="wallet_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+
+        <field name="holderId" type="wallet_holder_id" column="holder_id"/>
+        <field name="status" type="string" length="16" column="status"
+               enum-type="App\Wallet\Domain\Wallet\WalletStatus"/>
+        <field name="lastSequence" type="integer" column="last_sequence"/>
+        <field name="version" type="integer" column="version" version="true"/>
+        <field name="openedAt" type="datetimetz_immutable" column="opened_at"/>
+        <field name="closedAt" type="datetimetz_immutable" column="closed_at" nullable="true"/>
+
+        <!-- The wallet's own currency, used to validate incoming amounts. -->
+        <field name="currency" type="currency" length="3" column="currency"/>
+
+        <!-- Denormalised running balance; the ledger is the source of truth. -->
+        <embedded name="balance" class="App\Shared\Domain\ValueObject\Money" column-prefix="balance_"/>
+
+    </entity>
+
+</doctrine-mapping>

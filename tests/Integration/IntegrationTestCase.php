@@ -18,6 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class IntegrationTestCase extends KernelTestCase
 {
     protected ContainerInterface $container;
+
     protected EntityManagerInterface $entityManager;
 
     protected function setUp(): void
@@ -26,7 +27,7 @@ abstract class IntegrationTestCase extends KernelTestCase
 
         self::bootKernel();
         $this->container = static::getContainer();
-        $this->entityManager = $this->container->get(EntityManagerInterface::class);
+        $this->entityManager = $this->service(EntityManagerInterface::class);
     }
 
     protected function tearDown(): void
@@ -37,13 +38,28 @@ abstract class IntegrationTestCase extends KernelTestCase
         $this->entityManager->clear();
     }
 
-    protected function commandBus(): CommandBus
+    public function commandBus(): CommandBus
     {
-        return $this->container->get(CommandBus::class);
+        return $this->service(CommandBus::class);
     }
 
-    protected function queryBus(): QueryBus
+    public function queryBus(): QueryBus
     {
-        return $this->container->get(QueryBus::class);
+        return $this->service(QueryBus::class);
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $id
+     *
+     * @return T
+     */
+    protected function service(string $id): object
+    {
+        $service = $this->container->get($id);
+        \assert($service instanceof $id);
+
+        return $service;
     }
 }

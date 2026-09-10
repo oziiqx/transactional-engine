@@ -16,8 +16,9 @@ use Throwable;
 #[AsController]
 final readonly class HealthController
 {
-    public function __construct(private Connection $connection)
-    {
+    public function __construct(
+        private Connection $connection
+    ) {
     }
 
     public function ready(): JsonResponse
@@ -34,7 +35,9 @@ final readonly class HealthController
         return new JsonResponse(
             [
                 'status' => $healthy ? 'pass' : 'fail',
-                'checks' => ['database' => $database],
+                'checks' => [
+                    'database' => $database,
+                ],
             ],
             $healthy ? 200 : 503,
         );

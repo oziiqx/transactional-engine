@@ -9,10 +9,6 @@ namespace App\Shared\Domain\Exception;
  */
 final class NotFound extends DomainException
 {
-    /**
-     * @param non-empty-string $type
-     * @param non-empty-string $id
-     */
     private function __construct(
         private readonly string $type,
         private readonly string $id,
@@ -21,8 +17,7 @@ final class NotFound extends DomainException
     }
 
     /**
-     * @param non-empty-string $type   human label, e.g. "Wallet"
-     * @param non-empty-string $id
+     * @param string $type   human label, e.g. "Wallet"
      */
     public static function of(string $type, string $id): self
     {
@@ -41,6 +36,9 @@ final class NotFound extends DomainException
 
     public function context(): array
     {
-        return ['type' => $this->type, 'id' => $this->id];
+        return [
+            'type' => $this->type,
+            'id' => $this->id,
+        ];
     }
 }

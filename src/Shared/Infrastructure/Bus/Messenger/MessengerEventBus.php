@@ -17,8 +17,9 @@ use Symfony\Component\Messenger\Stamp\BusNameStamp;
  */
 final readonly class MessengerEventBus implements EventBus
 {
-    public function __construct(private MessageBusInterface $eventBus)
-    {
+    public function __construct(
+        private MessageBusInterface $eventBus
+    ) {
     }
 
     public function publish(DomainEvent ...$events): void

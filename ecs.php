@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use PhpCsFixer\Fixer\ClassNotation\OrderedClassElementsFixer;
 use PhpCsFixer\Fixer\Import\GlobalNamespaceImportFixer;
 use PhpCsFixer\Fixer\Import\OrderedImportsFixer;
+use PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\Strict\StrictComparisonFixer;
 use PhpCsFixer\Fixer\Strict\StrictParamFixer;
@@ -24,9 +24,7 @@ return ECSConfig::configure()
     ->withPreparedSets(
         psr12: true,
         common: true,
-        symplify: true,
         strict: true,
-        cleanCode: true,
     )
     ->withRules([
         DeclareStrictTypesFixer::class,
@@ -35,26 +33,26 @@ return ECSConfig::configure()
     ])
     ->withConfiguredRule(GlobalNamespaceImportFixer::class, [
         'import_classes' => true,
-        'import_constants' => true,
-        'import_functions' => true,
+        'import_constants' => false,
+        'import_functions' => false,
     ])
     ->withConfiguredRule(OrderedImportsFixer::class, [
         'imports_order' => ['class', 'function', 'const'],
         'sort_algorithm' => 'alpha',
     ])
-    ->withConfiguredRule(OrderedClassElementsFixer::class, [
-        'order' => [
-            'use_trait',
-            'case',
-            'constant_public',
-            'constant_protected',
-            'constant_private',
-            'property_public',
-            'property_protected',
-            'property_private',
-            'construct',
-            'method_public',
-            'method_protected',
-            'method_private',
-        ],
+    // Keep hand-written @param/@return refinements — they carry non-empty-string,
+    // list<>, positive-int etc. that PHPStan level 10 relies on.
+    ->withConfiguredRule(NoSuperfluousPhpdocTagsFixer::class, [
+        'allow_mixed' => true,
+        'allow_unused_params' => true,
+        'remove_inheritdoc' => false,
+    ])
+    ->withSkip([
+        // These reformat Pest expectation chains and long fluent calls into
+        // something far less readable than the original.
+        \Symplify\CodingStandard\Fixer\Spacing\MethodChainingNewlineFixer::class,
+        \PhpCsFixer\Fixer\Whitespace\MethodChainingIndentationFixer::class,
+        \Symplify\CodingStandard\Fixer\LineLength\LineLengthFixer::class,
+        // Framework-generated config reference helper — not ours to style.
+        __DIR__ . '/config/reference.php',
     ]);

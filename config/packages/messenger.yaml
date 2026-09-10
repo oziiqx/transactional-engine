@@ -70,14 +70,20 @@ framework:
                     max_delay: 21600000
 
             failed:
-                dsn: 'doctrine://default?queue_name=failed'
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: failed
+                        type: direct
+                    queues:
+                        failed: ~
 
         routing:
             # Domain events are relayed on the in-process event bus. Context
             # subscribers translate the ones that matter into explicit integration
-            # messages, and only those cross the wire.
+            # messages, and only those cross the wire. Webhook delivery messages
+            # are routed to async_webhooks once the Notification context exists.
             App\Shared\Application\Event\IntegrationMessage: async_domain_events
-            App\Notification\Application\DispatchWebhook\DispatchWebhookMessage: async_webhooks
 
 when@test:
     framework:

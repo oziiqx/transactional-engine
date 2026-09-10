@@ -1,0 +1,2 @@
+# Twig bundle default_path. API Platform ships its own templates for the doc UIs;
+# this project renders no server-side views of its own.

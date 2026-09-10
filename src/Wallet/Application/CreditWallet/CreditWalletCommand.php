@@ -15,12 +15,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class CreditWalletCommand implements Command
 {
     /**
-     * @param non-empty-string      $walletId
-     * @param numeric-string        $amount    plain decimal, e.g. "25.00"
-     * @param non-empty-string      $currency
-     * @param non-empty-string      $reason
-     * @param non-empty-string|null $reference       external correlation id
-     * @param non-empty-string|null $idempotencyKey  makes the request replay-safe
+     * @param string        $amount    plain decimal, e.g. "25.00"
+     * @param string|null $reference       external correlation id
+     * @param string|null $idempotencyKey  makes the request replay-safe
      */
     public function __construct(
         #[Assert\NotBlank]

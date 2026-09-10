@@ -21,13 +21,16 @@ abstract class FunctionalTestCase extends WebTestCase
         parent::setUp();
 
         $this->client = static::createClient();
-        $this->client->catchExceptions(false);
+        // Keep exception catching on: domain failures must surface as RFC 7807
+        // responses, which is exactly what these tests assert against.
+        $this->client->catchExceptions(true);
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param array<string, mixed>  $payload
+     * @param array<string, string> $headers
      */
-    protected function jsonRequest(
+    public function jsonRequest(
         string $method,
         string $uri,
         array $payload = [],
@@ -50,7 +53,7 @@ abstract class FunctionalTestCase extends WebTestCase
     /**
      * @return array<string, mixed>
      */
-    protected function decode(Response $response): array
+    public function decode(Response $response): array
     {
         /** @var array<string, mixed> $data */
         $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);

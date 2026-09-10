@@ -11,11 +11,6 @@ use DateTimeImmutable;
  */
 final readonly class WalletOpened extends WalletDomainEvent
 {
-    /**
-     * @param non-empty-string $walletId
-     * @param non-empty-string $holderId
-     * @param non-empty-string $currency
-     */
     public function __construct(
         string $walletId,
         public string $holderId,

@@ -14,15 +14,11 @@ use DateTimeImmutable;
  * Entries are never updated or deleted. A wallet's balance is defined as the fold
  * of every entry's signed amount; {@see balanceAfter} is that running total
  * materialised at write time so the read side never has to re-sum the history.
+ *
+ * @final Not declared `final` only so Doctrine can subclass it for lazy hydration.
  */
-final class LedgerEntry
+class LedgerEntry
 {
-    /**
-     * @param positive-int      $sequence        1-based, gap-free, monotonic per wallet
-     * @param non-empty-string  $amount          the movement, always a positive value
-     * @param non-empty-string|null $reference   external correlation id (e.g. a payment id)
-     * @param non-empty-string|null $idempotencyKey caller token that produced this entry
-     */
     private function __construct(
         private readonly LedgerEntryId $id,
         private readonly WalletId $walletId,
@@ -39,8 +35,6 @@ final class LedgerEntry
 
     /**
      * @param positive-int          $sequence
-     * @param non-empty-string|null $reference
-     * @param non-empty-string|null $idempotencyKey
      */
     public static function post(
         LedgerEntryId $id,

@@ -20,9 +20,6 @@ use App\Wallet\Domain\Wallet\WalletHolderId;
 use App\Wallet\Domain\Wallet\WalletId;
 use App\Wallet\Domain\Wallet\WalletStatus;
 
-/**
- * @return App\Wallet\Domain\Wallet\Wallet
- */
 function freshWallet(Currency $currency = Currency::EUR): Wallet
 {
     $wallet = Wallet::open(WalletId::generate(), WalletHolderId::generate(), $currency, at());

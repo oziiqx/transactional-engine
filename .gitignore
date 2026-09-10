@@ -1,34 +1,63 @@
-# ─── Symfony runtime ────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────
+#  With this in place, `git add -A` only ever stages source + config.
+# ─────────────────────────────────────────────────────────────────────
+
+# ── Generated / tool caches ─────────────────────────────────────────
+/config/reference.php
+/.php-cs-fixer.cache
+/.rector.cache
+/.phpstan/
+/.psalm/
+/coverage/
+*.cache
+/node_modules/
+/public/build/
+/npm-debug.log
+/yarn-error.log
+
+# ── Local dev tooling / AI assistants (never committed) ─────────────
+/.symfony.local.yaml
+/.symfony/
+/compose.override.yaml
+/docker-compose.override.yml
+/.claude/
+/.cursor/
+/.aider*
+/.github/copilot-instructions.md
+
+# ── IDE / editor ───────────────────────────────────────────────────
+/.idea/
+/.vscode/
+/.fleet/
+/.zed/
+/.nova/
+*.iml
+*.swp
+*.swo
+*~
+
+# ── OS cruft ───────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Logs ───────────────────────────────────────────────────────────
+*.log
+
+###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
 /.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
 /var/
 /vendor/
-/public/bundles/
-/config/secrets/**/*.decrypt.private.php
+###< symfony/framework-bundle ###
 
-# ─── Tests & coverage ───────────────────────────────────────────────
+###> phpunit/phpunit ###
+/phpunit.xml
 /.phpunit.cache/
 /.phpunit.result.cache
-/phpunit.xml
-
-# ─── Tooling caches ─────────────────────────────────────────────────
-/.php-cs-fixer.cache
-/.rector.cache
-/.psalm/
-/psalm.baseline.xml.tmp
-/composer.phar
-
-# ─── IDE / editor ───────────────────────────────────────────────────
-/.idea/
-/.vscode/
-*.iml
-
-# ─── Claude Code (personal, per-machine) ────────────────────────────
-/.claude/settings.local.json
-
-# ─── OS cruft ───────────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-desktop.ini
-*.log
+###< phpunit/phpunit ###

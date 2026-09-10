@@ -14,8 +14,9 @@ use Symfony\Component\Lock\LockFactory as SymfonyComponentLockFactory;
  */
 final readonly class SymfonyLockFactory implements LockFactory
 {
-    public function __construct(private SymfonyComponentLockFactory $lockFactory)
-    {
+    public function __construct(
+        private SymfonyComponentLockFactory $lockFactory
+    ) {
     }
 
     public function create(string $resource, float $ttlSeconds = 30.0): Lock

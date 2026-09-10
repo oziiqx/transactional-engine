@@ -43,3 +43,11 @@ function money(int $minor, Currency $currency = Currency::EUR): Money
 {
     return Money::of($minor, $currency);
 }
+
+/**
+ * @return non-empty-string
+ */
+function uuid(): string
+{
+    return Symfony\Component\Uid\Uuid::v7()->toRfc4122();
+}

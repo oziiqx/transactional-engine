@@ -15,9 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class OpenWalletCommand implements Command
 {
     /**
-     * @param non-empty-string $walletId
-     * @param non-empty-string $holderId
-     * @param non-empty-string $currency ISO 4217 alphabetic code
+     * @param string $currency ISO 4217 alphabetic code
      */
     public function __construct(
         #[Assert\NotBlank]

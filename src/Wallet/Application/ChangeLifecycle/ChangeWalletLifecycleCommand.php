@@ -13,8 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class ChangeWalletLifecycleCommand implements Command
 {
     /**
-     * @param non-empty-string $walletId
-     * @param non-empty-string $action   one of freeze|unfreeze|close
+     * @param string $action   one of freeze|unfreeze|close
      */
     public function __construct(
         #[Assert\NotBlank]

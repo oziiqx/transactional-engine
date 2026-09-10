@@ -12,7 +12,7 @@ namespace App\Shared\Application\Lock;
 interface LockFactory
 {
     /**
-     * @param non-empty-string $resource stable key identifying what is being guarded
+     * @param string $resource stable key identifying what is being guarded
      * @param float            $ttlSeconds auto-release horizon if the holder dies
      */
     public function create(string $resource, float $ttlSeconds = 30.0): Lock;

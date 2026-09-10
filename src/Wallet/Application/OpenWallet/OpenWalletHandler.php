@@ -30,7 +30,10 @@ final readonly class OpenWalletHandler implements CommandHandler
             throw ConflictingState::of(
                 'wallet.already_exists',
                 \sprintf('Holder %s already has a %s wallet.', $holderId->value, $currency->value),
-                ['holderId' => $holderId->value, 'currency' => $currency->value],
+                [
+                    'holderId' => $holderId->value,
+                    'currency' => $currency->value,
+                ],
             );
         }
 

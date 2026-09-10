@@ -26,11 +26,6 @@ use Doctrine\DBAL\Types\Type;
 abstract class EntityIdType extends Type
 {
     /**
-     * @return class-string<T>
-     */
-    abstract protected function idClass(): string;
-
-    /**
      * @param array<string, mixed> $column
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
@@ -49,7 +44,7 @@ abstract class EntityIdType extends Type
             return $value;
         }
 
-        if (!\is_string($value)) {
+        if (! \is_string($value)) {
             throw ValueNotConvertible::new(\get_debug_type($value), $class);
         }
 
@@ -69,4 +64,9 @@ abstract class EntityIdType extends Type
             default => throw ValueNotConvertible::new(\get_debug_type($value), $this->idClass()),
         };
     }
+
+    /**
+     * @return class-string<T>
+     */
+    abstract protected function idClass(): string;
 }

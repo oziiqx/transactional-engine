@@ -52,6 +52,9 @@ final class WalletNotActive extends DomainException
 
     public function context(): array
     {
-        return ['walletId' => $this->walletId->value, 'status' => $this->status->value];
+        return [
+            'walletId' => $this->walletId->value,
+            'status' => $this->status->value,
+        ];
     }
 }

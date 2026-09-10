@@ -31,7 +31,7 @@ final readonly class DomainExceptionToProblemListener
     {
         $throwable = $event->getThrowable();
 
-        if (!$throwable instanceof DomainException) {
+        if (! $throwable instanceof DomainException) {
             return;
         }
 
@@ -52,7 +52,9 @@ final readonly class DomainExceptionToProblemListener
         $event->setResponse(new JsonResponse(
             $problem,
             $status,
-            ['Content-Type' => 'application/problem+json'],
+            [
+                'Content-Type' => 'application/problem+json',
+            ],
         ));
     }
 }

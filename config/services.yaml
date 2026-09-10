@@ -11,10 +11,6 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
-        bind:
-            string $webhookSigningKey: '%app.webhook.signing_key%'
-            string $apiRequestSigningKey: '%app.api.request_signing_key%'
-            int $webhookMaxAttempts: '%app.webhook.max_attempts%'
 
     # Application + Infrastructure of every bounded context become services.
     App\:
@@ -24,7 +20,8 @@ services:
             - '../src/**/Domain/'
             - '../src/**/DoctrineMigrations/'
             - '../src/**/ApiPlatform/Resource/'
-            - '../src/**/ReadModel/'
+            - '../src/**/Application/ReadModel/'
+            - '../src/**/Application/Support/'
             - '../src/**/Dto/'
             - '../src/**/Exception/'
             - '../src/Shared/Application/Idempotency/'
@@ -66,3 +63,11 @@ services:
         alias: App\Shared\Infrastructure\Idempotency\CacheBackedIdempotencyStore
     App\Shared\Application\Lock\LockFactory:
         alias: App\Shared\Infrastructure\Lock\SymfonyLockFactory
+
+    # ── Wallet context ──────────────────────────────────────────────────
+    App\Wallet\Domain\Wallet\Wallets:
+        alias: App\Wallet\Infrastructure\Doctrine\Repository\DoctrineWallets
+    App\Wallet\Application\ReadModel\WalletReadModel:
+        alias: App\Wallet\Infrastructure\Doctrine\ReadModel\DoctrineWalletReadModel
+    App\Wallet\Application\Port\ReconciliationSource:
+        alias: App\Wallet\Infrastructure\Reconciliation\LedgerSumReconciliationSource

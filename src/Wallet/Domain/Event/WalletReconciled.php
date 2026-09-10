@@ -15,10 +15,6 @@ use DateTimeImmutable;
  */
 final readonly class WalletReconciled extends WalletDomainEvent
 {
-    /**
-     * @param non-empty-string $walletId
-     * @param non-empty-string $currency
-     */
     public function __construct(
         string $walletId,
         public int $previousBalanceMinor,

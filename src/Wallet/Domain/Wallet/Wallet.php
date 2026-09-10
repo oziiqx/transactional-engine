@@ -38,13 +38,22 @@ use DateTimeImmutable;
  *
  * The aggregate keeps a running balance and the entries created in the current
  * unit of work; the full history is a read concern and lives in a projection.
+ *
+ * @final Not declared `final` only so Doctrine can subclass it for lazy hydration.
  */
-final class Wallet extends AggregateRoot
+class Wallet extends AggregateRoot
 {
     /**
      * @var list<LedgerEntry>
      */
     private array $uncommittedEntries = [];
+
+    /**
+     * Incremented by the persistence layer on every write. Two concurrent
+     * transactions that loaded the same version cannot both commit — the second
+     * gets an optimistic-lock failure and is retried by the message worker.
+     */
+    private int $version = 1;
 
     private function __construct(
         private readonly WalletId $id,
@@ -81,8 +90,6 @@ final class Wallet extends AggregateRoot
     }
 
     /**
-     * @param non-empty-string|null $reference
-     *
      * @throws WalletNotActive
      * @throws WalletCurrencyMismatch
      * @throws InvariantViolation
@@ -116,8 +123,6 @@ final class Wallet extends AggregateRoot
     }
 
     /**
-     * @param non-empty-string|null $reference
-     *
      * @throws WalletNotActive
      * @throws WalletCurrencyMismatch
      * @throws InsufficientFunds
@@ -253,11 +258,14 @@ final class Wallet extends AggregateRoot
             return;
         }
 
-        if (!$this->balance->isZero()) {
+        if (! $this->balance->isZero()) {
             throw ConflictingState::of(
                 'wallet.non_zero_balance',
                 \sprintf('Wallet %s cannot be closed while it holds %s.', $this->id->value, $this->balance),
-                ['walletId' => $this->id->value, 'balance' => $this->balance->toDecimalString()],
+                [
+                    'walletId' => $this->id->value,
+                    'balance' => $this->balance->toDecimalString(),
+                ],
             );
         }
 
@@ -296,6 +304,11 @@ final class Wallet extends AggregateRoot
         return $this->lastSequence;
     }
 
+    public function version(): int
+    {
+        return $this->version;
+    }
+
     public function openedAt(): DateTimeImmutable
     {
         return $this->openedAt;
@@ -320,10 +333,6 @@ final class Wallet extends AggregateRoot
         return $entries;
     }
 
-    /**
-     * @param non-empty-string|null $reference
-     * @param non-empty-string|null $idempotencyKey
-     */
     private function appendEntry(
         LedgerDirection $direction,
         Money $amount,
@@ -368,7 +377,7 @@ final class Wallet extends AggregateRoot
      */
     private function guardActive(): void
     {
-        if (!$this->status->allowsMovement()) {
+        if (! $this->status->allowsMovement()) {
             throw WalletNotActive::forMovement($this->id, $this->status);
         }
     }
@@ -388,7 +397,7 @@ final class Wallet extends AggregateRoot
      */
     private function guardPositive(Money $amount): void
     {
-        if (!$amount->isPositive()) {
+        if (! $amount->isPositive()) {
             throw InvariantViolation::of(
                 'wallet.non_positive_amount',
                 'A ledger movement must be a strictly positive amount.',

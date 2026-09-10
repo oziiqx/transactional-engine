@@ -20,7 +20,10 @@ final class CurrencyType extends Type
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getStringTypeDeclarationSQL(['length' => 3, 'fixed' => true]);
+        return $platform->getStringTypeDeclarationSQL([
+            'length' => 3,
+            'fixed' => true,
+        ]);
     }
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?Currency

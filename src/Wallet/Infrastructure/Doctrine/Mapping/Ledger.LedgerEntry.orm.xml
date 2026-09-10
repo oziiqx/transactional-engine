@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                      https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <!--
+        Append-only. No association back to Wallet on purpose: entries reference
+        their wallet by id only, which keeps the aggregate boundary sharp and lets
+        the ledger table grow without ever loading a collection into the aggregate.
+    -->
+    <entity name="App\Wallet\Domain\Ledger\LedgerEntry" table="wallet_ledger_entries">
+
+        <indexes>
+            <index name="idx_ledger_wallet_recorded" columns="wallet_id,recorded_at,sequence"/>
+            <index name="idx_ledger_wallet_idempotency" columns="wallet_id,idempotency_key"/>
+        </indexes>
+
+        <unique-constraints>
+            <unique-constraint name="uniq_ledger_wallet_sequence" columns="wallet_id,sequence"/>
+        </unique-constraints>
+
+        <id name="id" type="ledger_entry_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+
+        <field name="walletId" type="wallet_id" column="wallet_id"/>
+        <field name="sequence" type="integer" column="sequence"/>
+        <field name="direction" type="string" length="8" column="direction"
+               enum-type="App\Wallet\Domain\Ledger\LedgerDirection"/>
+        <field name="reason" type="string" length="32" column="reason"
+               enum-type="App\Wallet\Domain\Ledger\LedgerReason"/>
+        <field name="reference" type="string" length="255" column="reference" nullable="true"/>
+        <field name="idempotencyKey" type="string" length="255" column="idempotency_key" nullable="true"/>
+        <field name="recordedAt" type="datetimetz_immutable" column="recorded_at"/>
+
+        <embedded name="amount" class="App\Shared\Domain\ValueObject\Money" column-prefix="amount_"/>
+        <embedded name="balanceAfter" class="App\Shared\Domain\ValueObject\Money" column-prefix="balance_after_"/>
+
+    </entity>
+
+</doctrine-mapping>

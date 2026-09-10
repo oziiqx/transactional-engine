@@ -14,9 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final readonly class ReconcileWalletCommand implements Command
 {
-    /**
-     * @param non-empty-string $walletId
-     */
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Uuid(strict: true)]

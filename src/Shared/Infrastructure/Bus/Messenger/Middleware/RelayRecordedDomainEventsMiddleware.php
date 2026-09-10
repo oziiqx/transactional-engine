@@ -10,6 +10,7 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
+use Throwable;
 
 /**
  * Sits *outside* the Doctrine transaction middleware on `command.bus`. It lets the
@@ -32,7 +33,7 @@ final readonly class RelayRecordedDomainEventsMiddleware implements MiddlewareIn
     {
         try {
             $envelope = $stack->next()->handle($envelope, $stack);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             // The transaction rolled back; discard anything the aborted unit of
             // work managed to record.
             $this->buffer->drain();

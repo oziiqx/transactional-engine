@@ -11,43 +11,41 @@ namespace App\Shared\Domain\Exception;
 final class ConflictingState extends DomainException
 {
     /**
-     * @param non-empty-string $code
+     * @param non-empty-string $errorCode
      * @param array<string, scalar|array<array-key, scalar>|null> $context
      */
     private function __construct(
         string $message,
-        private readonly string $code,
+        private readonly string $errorCode,
         private readonly array $context = [],
     ) {
         parent::__construct($message);
     }
 
     /**
-     * @param non-empty-string $code
-     * @param non-empty-string $message
+     * @param non-empty-string $errorCode
      * @param array<string, scalar|array<array-key, scalar>|null> $context
      */
-    public static function of(string $code, string $message, array $context = []): self
+    public static function of(string $errorCode, string $message, array $context = []): self
     {
-        return new self($message, $code, $context);
+        return new self($message, $errorCode, $context);
     }
 
-    /**
-     * @param non-empty-string $transition
-     * @param non-empty-string $currentState
-     */
     public static function cannotTransition(string $transition, string $currentState): self
     {
         return new self(
             \sprintf('Cannot "%s" while in state "%s".', $transition, $currentState),
             'state.conflict',
-            ['transition' => $transition, 'currentState' => $currentState],
+            [
+                'transition' => $transition,
+                'currentState' => $currentState,
+            ],
         );
     }
 
     public function errorCode(): string
     {
-        return $this->code;
+        return $this->errorCode;
     }
 
     public function httpStatus(): int

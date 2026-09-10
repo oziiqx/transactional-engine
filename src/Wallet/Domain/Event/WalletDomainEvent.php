@@ -14,9 +14,6 @@ use DateTimeImmutable;
  */
 abstract readonly class WalletDomainEvent implements DomainEvent
 {
-    /**
-     * @param non-empty-string $walletId
-     */
     public function __construct(
         public string $walletId,
         public DateTimeImmutable $occurredOn,

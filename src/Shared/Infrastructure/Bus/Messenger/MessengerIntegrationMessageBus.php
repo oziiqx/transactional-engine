@@ -16,8 +16,9 @@ use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
  */
 final readonly class MessengerIntegrationMessageBus implements IntegrationMessageBus
 {
-    public function __construct(private MessageBusInterface $eventBus)
-    {
+    public function __construct(
+        private MessageBusInterface $eventBus
+    ) {
     }
 
     public function dispatch(IntegrationMessage $message): void
