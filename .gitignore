@@ -1,0 +1,20 @@
+/.env.local
+/.env.local.php
+/.env.*.local
+/.phpunit.cache/
+/.phpunit.result.cache
+/composer.phar
+/var/
+/vendor/
+/public/bundles/
+/config/secrets/prod/prod.decrypt.private.php
+
+# Tooling caches
+/.php-cs-fixer.cache
+/psalm.baseline.xml.tmp
+/.rector.cache
+
+# IDE
+/.idea/
+/.vscode/
+*.iml
